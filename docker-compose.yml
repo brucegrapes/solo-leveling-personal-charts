@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: solo-leveling-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: solo-leveling
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - solo-leveling-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/solo-leveling --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: solo-leveling-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/solo-leveling
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=https://192.168.0.241:2026
+      - AUTH_TRUST_HOST=true
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - solo-leveling-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    image: nginx:alpine
+    container_name: solo-leveling-nginx
+    restart: unless-stopped
+    ports:
+      - "2026:443"
+      - "2025:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - nextjs
+    networks:
+      - solo-leveling-network
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+
+networks:
+  solo-leveling-network:
+    driver: bridge
