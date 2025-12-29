@@ -8,21 +8,13 @@ import ActivityTracker from '@/components/ActivityTracker';
 import StatsDisplay from '@/components/StatsDisplay';
 import ChartView from '@/components/ChartView';
 import LevelDisplay from '@/components/LevelDisplay';
-import { Activity, ActivityData, UserStats } from '@/types';
-
-const ACTIVITIES: Activity[] = [
-  { id: 'gym', name: 'Gym', icon: '💪' },
-  { id: 'books', name: 'Reading', icon: '📚' },
-  { id: 'office', name: 'Office Work', icon: '💼' },
-  { id: 'mental', name: 'Mental Health', icon: '🧘' },
-  { id: 'coolness', name: 'Coolness', icon: '😎' },
-  { id: 'notes', name: 'Life Notes', icon: '📝' },
-];
+import { Activity, ActivityData, UserStats, DEFAULT_ACTIVITIES } from '@/types';
 
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [activityData, setActivityData] = useState<ActivityData>({});
+  const [activities, setActivities] = useState<Activity[]>(DEFAULT_ACTIVITIES);
   const [userStats, setUserStats] = useState<UserStats>({
     level: 1,
     experience: 0,
@@ -40,12 +32,27 @@ export default function Home() {
     }
   }, [status, router]);
 
-  // Load data from database on mount
+  // Load data and config from database on mount
   useEffect(() => {
     if (status === 'authenticated') {
       fetchData();
+      fetchConfig();
     }
   }, [status]);
+
+  const fetchConfig = async () => {
+    try {
+      const response = await fetch('/api/config');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.config?.activities && data.config.customized) {
+          setActivities(data.config.activities);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch config:', error);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -95,13 +102,24 @@ export default function Home() {
     return null;
   }
 
-  const handleActivityToggle = (activityId: string, date: string) => {
+  const handleActivityToggle = (activityId: string, date: string, subGoalId?: string) => {
     setActivityData((prev) => {
       const newData = { ...prev };
       if (!newData[date]) {
         newData[date] = {};
+      } else {
+        // Deep copy the date object to ensure React detects the change
+        newData[date] = { ...newData[date] };
       }
-      newData[date][activityId] = !newData[date][activityId];
+      
+      if (subGoalId) {
+        // Handle sub-goal toggle
+        const subGoalKey = `${activityId}:${subGoalId}`;
+        newData[date][subGoalKey] = !newData[date][subGoalKey];
+      } else {
+        // Handle main activity toggle
+        newData[date][activityId] = !newData[date][activityId];
+      }
       
       // Update stats
       const newStats = calculateStats(newData);
@@ -131,8 +149,27 @@ export default function Home() {
 
   const calculateStats = (data: ActivityData): UserStats => {
     const allDates = Object.keys(data).sort();
+    
+    // Count completed tasks, excluding notes and non-scored activities
+    const nonScoredIds = new Set(
+      activities.filter((a) => a.isScored === false).map((a) => a.id)
+    );
+    
     const totalCompleted = Object.values(data).reduce((acc, day) => {
-      return acc + Object.values(day).filter(Boolean).length;
+      let dayCount = 0;
+      Object.entries(day).forEach(([key, value]) => {
+        // Skip notes and non-boolean values
+        if (key === 'notes' || typeof value !== 'boolean' || !value) return;
+        
+        // Check if this is a sub-goal (format: activityId:subGoalId)
+        const activityId = key.includes(':') ? key.split(':')[0] : key;
+        
+        // Skip non-scored activities
+        if (nonScoredIds.has(activityId)) return;
+        
+        dayCount++;
+      });
+      return acc + dayCount;
     }, 0);
 
     // Calculate experience and level
@@ -157,19 +194,30 @@ export default function Home() {
     
     while (true) {
       const dateStr = currentDate.toISOString().split('T')[0];
-      if (data[dateStr] && Object.values(data[dateStr]).some(Boolean)) {
-        streak++;
-        currentDate.setDate(currentDate.getDate() - 1);
-      } else {
-        break;
+      const dayData = data[dateStr];
+      if (dayData) {
+        // Check if any scored activity was completed
+        const hasCompletedActivity = Object.entries(dayData).some(([key, value]) => {
+          if (key === 'notes' || typeof value !== 'boolean' || !value) return false;
+          const activityId = key.includes(':') ? key.split(':')[0] : key;
+          return !nonScoredIds.has(activityId);
+        });
+        if (hasCompletedActivity) {
+          streak++;
+          currentDate.setDate(currentDate.getDate() - 1);
+          continue;
+        }
       }
+      break;
     }
 
     // Determine title based on level and most frequent activity
     const activityCounts: Record<string, number> = {};
     Object.values(data).forEach((day) => {
-      Object.keys(day).forEach((activityId) => {
-        if (day[activityId]) {
+      Object.entries(day).forEach(([key, value]) => {
+        if (key === 'notes' || typeof value !== 'boolean' || !value) return;
+        const activityId = key.includes(':') ? key.split(':')[0] : key;
+        if (!nonScoredIds.has(activityId)) {
           activityCounts[activityId] = (activityCounts[activityId] || 0) + 1;
         }
       });
@@ -177,7 +225,7 @@ export default function Home() {
 
     const mostFrequentActivity = Object.keys(activityCounts).reduce((a, b) =>
       activityCounts[a] > activityCounts[b] ? a : b
-    , 'gym');
+    , 'strength');
 
     const titles = getTitles(level, mostFrequentActivity);
 
@@ -192,15 +240,21 @@ export default function Home() {
 
   const getTitles = (level: number, topActivity: string): string => {
     const activityTitles: Record<string, string[]> = {
+      // New game-themed names
+      strength: ['E-Rank Hunter', 'D-Rank Hunter', 'C-Rank Hunter', 'B-Rank Hunter', 'A-Rank Hunter', 'S-Rank Hunter', 'Iron Body Monarch'],
+      knowledge: ['E-Rank Hunter', 'D-Rank Hunter', 'C-Rank Hunter', 'B-Rank Hunter', 'A-Rank Hunter', 'S-Rank Hunter', 'Shadow Sage'],
+      productivity: ['E-Rank Hunter', 'D-Rank Hunter', 'C-Rank Hunter', 'B-Rank Hunter', 'A-Rank Hunter', 'S-Rank Hunter', 'Architect of Success'],
+      mind: ['E-Rank Hunter', 'D-Rank Hunter', 'C-Rank Hunter', 'B-Rank Hunter', 'A-Rank Hunter', 'S-Rank Hunter', 'Monarch of Serenity'],
+      coolness: ['E-Rank Hunter', 'D-Rank Hunter', 'C-Rank Hunter', 'B-Rank Hunter', 'A-Rank Hunter', 'S-Rank Hunter', 'Shadow Monarch'],
+      // Legacy mappings for backward compatibility
       gym: ['E-Rank Hunter', 'D-Rank Hunter', 'C-Rank Hunter', 'B-Rank Hunter', 'A-Rank Hunter', 'S-Rank Hunter', 'Iron Body Monarch'],
       books: ['E-Rank Hunter', 'D-Rank Hunter', 'C-Rank Hunter', 'B-Rank Hunter', 'A-Rank Hunter', 'S-Rank Hunter', 'Shadow Sage'],
       office: ['E-Rank Hunter', 'D-Rank Hunter', 'C-Rank Hunter', 'B-Rank Hunter', 'A-Rank Hunter', 'S-Rank Hunter', 'Architect of Success'],
       mental: ['E-Rank Hunter', 'D-Rank Hunter', 'C-Rank Hunter', 'B-Rank Hunter', 'A-Rank Hunter', 'S-Rank Hunter', 'Monarch of Serenity'],
-      coolness: ['E-Rank Hunter', 'D-Rank Hunter', 'C-Rank Hunter', 'B-Rank Hunter', 'A-Rank Hunter', 'S-Rank Hunter', 'Shadow Monarch'],
       notes: ['E-Rank Hunter', 'D-Rank Hunter', 'C-Rank Hunter', 'B-Rank Hunter', 'A-Rank Hunter', 'S-Rank Hunter', 'Chronicler Supreme'],
     };
 
-    const titles = activityTitles[topActivity] || activityTitles['gym'];
+    const titles = activityTitles[topActivity] || activityTitles['strength'];
     const titleIndex = Math.floor(level / 10);
     return titles[Math.min(titleIndex, titles.length - 1)];
   };
@@ -229,12 +283,18 @@ export default function Home() {
             Solo Leveling Progress
           </h1>
           <p className="text-sl-light text-sm sm:text-base lg:text-lg">Track your journey to become the strongest</p>
-          <div className="mt-3 sm:mt-4">
+          <div className="mt-3 sm:mt-4 flex flex-wrap justify-center gap-3">
             <Link
               href="/history"
               className="inline-block bg-sl-purple/50 hover:bg-sl-purple text-white font-semibold py-2 px-4 sm:px-6 rounded-lg border-2 border-sl-gold/50 transition-all text-sm sm:text-base"
             >
               📖 View Journal & History
+            </Link>
+            <Link
+              href="/dashboard"
+              className="inline-block bg-sl-gray/50 hover:bg-sl-gray text-white font-semibold py-2 px-4 sm:px-6 rounded-lg border-2 border-sl-purple/50 transition-all text-sm sm:text-base"
+            >
+              ⚙️ Customize Dashboard
             </Link>
           </div>
         </header>
@@ -244,7 +304,7 @@ export default function Home() {
             <LevelDisplay userStats={userStats} />
           </div>
           <div>
-            <StatsDisplay userStats={userStats} activities={ACTIVITIES} activityData={activityData} />
+            <StatsDisplay userStats={userStats} activities={activities} activityData={activityData} />
           </div>
         </div>
 
@@ -259,12 +319,12 @@ export default function Home() {
 
         {showChart && (
           <div className="mb-8">
-            <ChartView activityData={activityData} activities={ACTIVITIES} />
+            <ChartView activityData={activityData} activities={activities} />
           </div>
         )}
 
         <ActivityTracker
-          activities={ACTIVITIES}
+          activities={activities}
           activityData={activityData}
           onActivityToggle={handleActivityToggle}
           onNotesUpdate={handleNotesUpdate}

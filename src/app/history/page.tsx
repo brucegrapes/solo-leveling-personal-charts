@@ -4,22 +4,14 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Activity, ActivityData } from '@/types';
+import { Activity, ActivityData, DEFAULT_ACTIVITIES } from '@/types';
 import { format, subDays, parseISO } from 'date-fns';
-
-const ACTIVITIES: Activity[] = [
-  { id: 'gym', name: 'Gym', icon: '💪' },
-  { id: 'books', name: 'Reading', icon: '📚' },
-  { id: 'office', name: 'Office Work', icon: '💼' },
-  { id: 'mental', name: 'Mental Health', icon: '🧘' },
-  { id: 'coolness', name: 'Coolness', icon: '😎' },
-  { id: 'notes', name: 'Life Notes', icon: '📝' },
-];
 
 export default function HistoryPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [activityData, setActivityData] = useState<ActivityData>({});
+  const [activities, setActivities] = useState<Activity[]>(DEFAULT_ACTIVITIES);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('list');
 
@@ -32,6 +24,7 @@ export default function HistoryPage() {
   useEffect(() => {
     if (status === 'authenticated') {
       fetchData();
+      fetchConfig();
     }
   }, [status]);
 
@@ -44,6 +37,20 @@ export default function HistoryPage() {
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
+    }
+  };
+
+  const fetchConfig = async () => {
+    try {
+      const response = await fetch('/api/config');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.config?.activities && data.config.customized) {
+          setActivities(data.config.activities);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch config:', error);
     }
   };
 
@@ -64,6 +71,10 @@ export default function HistoryPage() {
   const allDates = Object.keys(activityData).sort().reverse();
   const selectedDayData = activityData[selectedDate] || {};
 
+  // Get trackable activities (exclude notes)
+  const trackableActivities = activities.filter((a) => a.id !== 'notes');
+  const totalActivitiesCount = trackableActivities.length;
+
   // Generate last 30 days for calendar view
   const last30Days = Array.from({ length: 30 }, (_, i) => {
     const date = subDays(new Date(), i);
@@ -75,9 +86,32 @@ export default function HistoryPage() {
     };
   });
 
-  const getCompletionCount = (dayData: any) => {
-    return Object.keys(dayData).filter(key => key !== 'notes' && dayData[key]).length;
+  const getCompletionCount = (dayData: Record<string, unknown>) => {
+    let count = 0;
+    trackableActivities.forEach((activity) => {
+      if (dayData[activity.id]) count++;
+      // Count sub-goals
+      if (activity.subGoals) {
+        activity.subGoals.forEach((subGoal) => {
+          const key = `${activity.id}:${subGoal.id}`;
+          if (dayData[key]) count++;
+        });
+      }
+    });
+    return count;
   };
+
+  const getTotalPossibleCount = () => {
+    let count = trackableActivities.length;
+    trackableActivities.forEach((activity) => {
+      if (activity.subGoals) {
+        count += activity.subGoals.length;
+      }
+    });
+    return count;
+  };
+
+  const totalPossible = getTotalPossibleCount();
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-sl-dark via-sl-blue to-sl-purple p-3 sm:p-4 md:p-8">
@@ -146,7 +180,7 @@ export default function HistoryPage() {
                           <span className="text-white font-semibold text-sm sm:text-base">
                             {format(parseISO(date), 'MMM dd, yyyy')}
                           </span>
-                          <span className="text-sl-gold">{completionCount}/6</span>
+                          <span className="text-sl-gold">{completionCount}/{totalPossible}</span>
                         </div>
                         {dayData.notes && (
                           <p className="text-sl-light text-xs mt-1 truncate">
@@ -168,7 +202,7 @@ export default function HistoryPage() {
                 </h2>
                 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-6">
-                  {ACTIVITIES.map((activity) => (
+                  {trackableActivities.map((activity) => (
                     <div
                       key={activity.id}
                       className={`p-3 sm:p-4 rounded-lg border-2 ${
@@ -183,6 +217,25 @@ export default function HistoryPage() {
                       </div>
                       {selectedDayData[activity.id] && (
                         <span className="text-sl-gold text-xs">✓ Completed</span>
+                      )}
+                      {/* Show sub-goals if any */}
+                      {activity.subGoals && activity.subGoals.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          {activity.subGoals.map((subGoal) => {
+                            const key = `${activity.id}:${subGoal.id}`;
+                            const isCompleted = !!selectedDayData[key];
+                            return (
+                              <div 
+                                key={subGoal.id}
+                                className={`text-xs flex items-center gap-1 ${isCompleted ? 'text-sl-gold' : 'text-sl-light/50'}`}
+                              >
+                                <span>{subGoal.icon}</span>
+                                <span>{subGoal.name}</span>
+                                {isCompleted && <span>✓</span>}
+                              </div>
+                            );
+                          })}
+                        </div>
                       )}
                     </div>
                   ))}
@@ -206,11 +259,12 @@ export default function HistoryPage() {
             <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-7 gap-3">
               {last30Days.map((day) => {
                 const completionCount = getCompletionCount(day.data);
-                const hasNotes = day.data.notes && day.data.notes.length > 0;
+                const hasNotes = day.data.notes && typeof day.data.notes === 'string' && day.data.notes.length > 0;
+                const completionRatio = totalPossible > 0 ? completionCount / totalPossible : 0;
                 const intensityClass = 
                   completionCount === 0 ? 'bg-sl-dark/50' :
-                  completionCount <= 2 ? 'bg-sl-blue/30' :
-                  completionCount <= 4 ? 'bg-sl-purple/50' :
+                  completionRatio <= 0.33 ? 'bg-sl-blue/30' :
+                  completionRatio <= 0.66 ? 'bg-sl-purple/50' :
                   'bg-sl-gold/30';
                 
                 return (
@@ -230,7 +284,7 @@ export default function HistoryPage() {
                         {format(day.dateObj, 'dd')}
                       </div>
                       <div className="text-xs text-sl-gold">
-                        {completionCount}/6
+                        {completionCount}/{totalPossible}
                       </div>
                       {hasNotes && (
                         <div className="text-xs mt-1">📝</div>
@@ -240,22 +294,22 @@ export default function HistoryPage() {
                 );
               })}
             </div>
-            <div className="mt-6 flex items-center justify-center gap-4 text-sm text-sl-light">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-sl-light">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-sl-dark/50 rounded border border-sl-purple/30"></div>
                 <span>No activity</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-sl-blue/30 rounded border border-sl-purple/30"></div>
-                <span>1-2 tasks</span>
+                <span>Low</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-sl-purple/50 rounded border border-sl-purple/30"></div>
-                <span>3-4 tasks</span>
+                <span>Medium</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-sl-gold/30 rounded border border-sl-purple/30"></div>
-                <span>5-6 tasks</span>
+                <span>High</span>
               </div>
             </div>
           </div>
