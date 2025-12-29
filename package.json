@@ -3,16 +3,26 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 2026",
+    "dev": "next dev -p 3001",
     "build": "next build",
-    "start": "next start -p 2026",
+    "start": "next start -p 3001",
     "lint": "next lint",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
-    "docker:prod": "bash generate-ssl.sh && docker-compose up -d --build",
-    "docker:logs": "docker-compose logs -f",
-    "docker:restart": "docker-compose restart",
-    "docker:clean": "docker-compose down -v && rm -rf .next node_modules/.cache"
+    "migrate": "npx ts-node --compiler-options '{\"module\":\"commonjs\"}' scripts/migrate-activities.ts",
+    "migrate:prod": "NODE_ENV=production npx ts-node --compiler-options '{\"module\":\"commonjs\"}' scripts/migrate-activities.ts",
+    "migrate:local": "MONGODB_URI=mongodb://localhost:27018/solo-leveling-local npx ts-node --compiler-options '{\"module\":\"commonjs\"}' scripts/migrate-activities.ts",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:prod": "bash generate-ssl.sh && docker compose up -d --build",
+    "docker:logs": "docker compose logs -f",
+    "docker:restart": "docker compose restart",
+    "docker:clean": "docker compose down -v && rm -rf .next node_modules/.cache",
+    "docker:local:up": "docker compose -f docker-compose.local.yml up -d",
+    "docker:local:down": "docker compose -f docker-compose.local.yml down",
+    "docker:local:build": "docker compose -f docker-compose.local.yml up -d --build",
+    "docker:local:logs": "docker compose -f docker-compose.local.yml logs -f",
+    "docker:local:restart": "docker compose -f docker-compose.local.yml restart",
+    "docker:local:clean": "docker compose -f docker-compose.local.yml down -v",
+    "docker:local:db": "docker compose -f docker-compose.local.yml up -d mongodb-local"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -31,10 +41,12 @@
     "@types/react": "^18.3.17",
     "@types/react-dom": "^18.3.5",
     "autoprefixer": "^10.4.20",
+    "dotenv": "^16.6.1",
     "eslint": "^9.17.0",
     "eslint-config-next": "^15.1.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
+    "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   }
 }

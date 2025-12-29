@@ -10,31 +10,52 @@ interface ChartViewProps {
 }
 
 export default function ChartView({ activityData, activities }: ChartViewProps) {
+  // Filter out notes from charts
+  const scoredActivities = activities.filter((a) => a.id !== 'notes' && a.isScored !== false);
+
   // Prepare data for the last 30 days
   const last30Days = Array.from({ length: 30 }, (_, i) => {
     const date = subDays(new Date(), 29 - i);
     const dateStr = date.toISOString().split('T')[0];
     const dayData = activityData[dateStr] || {};
     
-    const dataPoint: any = {
+    const dataPoint: Record<string, string | number> = {
       date: format(date, 'MMM dd'),
       total: 0,
     };
     
-    activities.forEach((activity) => {
-      const completed = dayData[activity.id] ? 1 : 0;
+    scoredActivities.forEach((activity) => {
+      // Count main activity
+      let completed = dayData[activity.id] ? 1 : 0;
+      
+      // Count sub-goals
+      if (activity.subGoals) {
+        activity.subGoals.forEach((subGoal) => {
+          const key = `${activity.id}:${subGoal.id}`;
+          if (dayData[key]) completed++;
+        });
+      }
+      
       dataPoint[activity.name] = completed;
-      dataPoint.total += completed;
+      dataPoint.total = (dataPoint.total as number) + completed;
     });
     
     return dataPoint;
   });
 
-  // Calculate total completions per activity
-  const activityTotals = activities.map((activity) => {
+  // Calculate total completions per activity (including sub-goals)
+  const activityTotals = scoredActivities.map((activity) => {
     let total = 0;
     Object.values(activityData).forEach((day) => {
       if (day[activity.id]) total++;
+      
+      // Count sub-goals
+      if (activity.subGoals) {
+        activity.subGoals.forEach((subGoal) => {
+          const key = `${activity.id}:${subGoal.id}`;
+          if (day[key]) total++;
+        });
+      }
     });
     return {
       name: activity.name,
@@ -43,13 +64,28 @@ export default function ChartView({ activityData, activities }: ChartViewProps) 
     };
   });
 
-  const colors = {
-    'Gym': '#ef4444',
-    'Reading': '#3b82f6',
-    'Office Work': '#10b981',
-    'Mental Health': '#8b5cf6',
-    'Coolness': '#f59e0b',
-    'Life Notes': '#ec4899',
+  // Calculate total tasks for dynamic fill opacity
+  const totalTasks = activityTotals.reduce((sum, a) => sum + a.total, 0);
+  const maxExpectedTasks = scoredActivities.length * 30; // Assume 30 days of tracking
+  const fillIntensity = Math.min(0.8, Math.max(0.3, totalTasks / maxExpectedTasks + 0.3));
+
+  // Dynamic colors based on activity names
+  const getColor = (name: string): string => {
+    const colorMap: Record<string, string> = {
+      // New game-themed names
+      'Strength': '#ef4444',
+      'Knowledge': '#3b82f6',
+      'Productivity': '#10b981',
+      'Mind': '#8b5cf6',
+      'Coolness': '#f59e0b',
+      // Legacy names (for backward compatibility)
+      'Gym': '#ef4444',
+      'Reading': '#3b82f6',
+      'Office Work': '#10b981',
+      'Mental Health': '#8b5cf6',
+      'Life Notes': '#ec4899',
+    };
+    return colorMap[name] || '#6d28d9';
   };
 
   return (
@@ -57,47 +93,75 @@ export default function ChartView({ activityData, activities }: ChartViewProps) 
       {/* Activity Balance Radar Chart */}
       <div className="bg-sl-gray/30 backdrop-blur-sm rounded-lg p-4 sm:p-6 border-2 border-sl-purple/50">
         <h2 className="text-xl sm:text-2xl font-bold text-sl-gold mb-2 sm:mb-4">Activity Balance (Hexagon)</h2>
-        <p className="text-sl-light text-xs sm:text-sm mb-3 sm:mb-4">A perfect hexagon means equal focus across all activities</p>
+        <p className="text-sl-light text-xs sm:text-sm mb-3 sm:mb-4">
+          A perfect hexagon means equal focus across all activities
+          <span className="ml-2 text-sl-gold">({totalTasks} total tasks)</span>
+        </p>
         <ResponsiveContainer width="100%" height={300} className="sm:hidden">
           <RadarChart data={activityTotals}>
-            <PolarGrid stroke="#6d28d9" />
-            <PolarAngleAxis dataKey="name" stroke="#8b96a5" tick={{ fontSize: 10 }} />
-            <PolarRadiusAxis stroke="#8b96a5" tick={{ fontSize: 10 }} />
+            <defs>
+              <radialGradient id="radarGradientMobile" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.9} />
+                <stop offset="50%" stopColor="#6d28d9" stopOpacity={fillIntensity} />
+                <stop offset="100%" stopColor="#1e3a8a" stopOpacity={fillIntensity * 0.5} />
+              </radialGradient>
+            </defs>
+            <PolarGrid stroke="#6d28d9" strokeOpacity={0.5} />
+            <PolarAngleAxis dataKey="name" stroke="#8b96a5" tick={{ fontSize: 10, fill: '#e5e7eb' }} />
+            <PolarRadiusAxis stroke="#8b96a5" tick={{ fontSize: 10 }} angle={90} />
             <Radar
               name="Completed Tasks"
               dataKey="total"
               stroke="#fbbf24"
-              fill="#6d28d9"
-              fillOpacity={0.6}
+              strokeWidth={2}
+              fill="url(#radarGradientMobile)"
+              fillOpacity={fillIntensity}
+              dot={{ fill: '#fbbf24', strokeWidth: 2, r: 4 }}
             />
             <Tooltip
               contentStyle={{
                 backgroundColor: '#1f2937',
-                border: '1px solid #6d28d9',
+                border: '2px solid #fbbf24',
                 borderRadius: '8px',
                 fontSize: '12px',
               }}
+              formatter={(value: number) => [`${value} tasks`, 'Completed']}
             />
           </RadarChart>
         </ResponsiveContainer>
         <ResponsiveContainer width="100%" height={400} className="hidden sm:block">
           <RadarChart data={activityTotals}>
-            <PolarGrid stroke="#6d28d9" />
-            <PolarAngleAxis dataKey="name" stroke="#8b96a5" />
-            <PolarRadiusAxis stroke="#8b96a5" />
+            <defs>
+              <radialGradient id="radarGradient" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.9} />
+                <stop offset="50%" stopColor="#6d28d9" stopOpacity={fillIntensity} />
+                <stop offset="100%" stopColor="#1e3a8a" stopOpacity={fillIntensity * 0.5} />
+              </radialGradient>
+            </defs>
+            <PolarGrid stroke="#6d28d9" strokeOpacity={0.5} />
+            <PolarAngleAxis dataKey="name" stroke="#8b96a5" tick={{ fill: '#e5e7eb', fontSize: 12 }} />
+            <PolarRadiusAxis stroke="#8b96a5" angle={90} />
             <Radar
               name="Completed Tasks"
               dataKey="total"
               stroke="#fbbf24"
-              fill="#6d28d9"
-              fillOpacity={0.6}
+              strokeWidth={3}
+              fill="url(#radarGradient)"
+              fillOpacity={fillIntensity}
+              dot={{ fill: '#fbbf24', strokeWidth: 2, r: 5 }}
+              activeDot={{ fill: '#fbbf24', strokeWidth: 3, r: 8 }}
             />
             <Tooltip
               contentStyle={{
                 backgroundColor: '#1f2937',
-                border: '1px solid #6d28d9',
+                border: '2px solid #fbbf24',
                 borderRadius: '8px',
               }}
+              formatter={(value: number) => [`${value} tasks`, 'Completed']}
+            />
+            <Legend 
+              wrapperStyle={{ color: '#e5e7eb' }}
+              formatter={() => <span style={{ color: '#fbbf24' }}>Completed Tasks</span>}
             />
           </RadarChart>
         </ResponsiveContainer>
@@ -120,12 +184,12 @@ export default function ChartView({ activityData, activities }: ChartViewProps) 
               }}
             />
             <Legend wrapperStyle={{ fontSize: '11px' }} />
-            {activities.map((activity) => (
+            {scoredActivities.map((activity) => (
               <Line
                 key={activity.id}
                 type="monotone"
                 dataKey={activity.name}
-                stroke={colors[activity.name as keyof typeof colors] || '#6d28d9'}
+                stroke={getColor(activity.name)}
                 strokeWidth={1.5}
                 dot={{ r: 2 }}
               />
@@ -145,12 +209,12 @@ export default function ChartView({ activityData, activities }: ChartViewProps) 
               }}
             />
             <Legend />
-            {activities.map((activity) => (
+            {scoredActivities.map((activity) => (
               <Line
                 key={activity.id}
                 type="monotone"
                 dataKey={activity.name}
-                stroke={colors[activity.name as keyof typeof colors] || '#6d28d9'}
+                stroke={getColor(activity.name)}
                 strokeWidth={2}
                 dot={{ r: 3 }}
               />
