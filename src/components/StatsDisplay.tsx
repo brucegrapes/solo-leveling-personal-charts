@@ -1,4 +1,5 @@
 import { Activity, ActivityData, UserStats } from '@/types';
+import { ActivityIcon } from './icons';
 
 interface StatsDisplayProps {
   userStats: UserStats;
@@ -46,7 +47,7 @@ export default function StatsDisplay({ userStats, activities, activityData }: St
           <div key={activity.id} className="bg-sl-dark/50 rounded-lg p-2.5 sm:p-3 border border-sl-purple/30">
             <div className="flex items-center justify-between mb-1 sm:mb-2">
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="text-lg sm:text-xl">{activity.icon}</span>
+                <ActivityIcon id={activity.id} size={24} />
                 <span className="font-semibold text-white text-sm sm:text-base">{activity.name}</span>
               </div>
               <div className="text-right">

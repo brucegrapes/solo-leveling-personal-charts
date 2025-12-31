@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Activity, SubGoal, DEFAULT_ACTIVITIES, UserConfig } from '@/types';
+import { ActivityIcon } from '@/components/icons';
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -238,16 +239,7 @@ export default function Dashboard() {
                     className="w-full bg-sl-gray/50 text-white rounded-lg p-3 border border-sl-purple/30 focus:border-sl-gold/50 focus:outline-none"
                   />
                 </div>
-                <div>
-                  <label className="block text-sl-light text-sm mb-1">Icon (emoji)</label>
-                  <input
-                    type="text"
-                    value={newActivity.icon}
-                    onChange={(e) => setNewActivity({ ...newActivity, icon: e.target.value })}
-                    placeholder="e.g., 🎨"
-                    className="w-full bg-sl-gray/50 text-white rounded-lg p-3 border border-sl-purple/30 focus:border-sl-gold/50 focus:outline-none"
-                  />
-                </div>
+                <p className="text-sl-light/50 text-xs">Custom categories will use a default icon</p>
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -281,45 +273,42 @@ export default function Dashboard() {
           {activities.map((activity) => (
             <div
               key={activity.id}
-              className="bg-sl-gray/30 backdrop-blur-sm rounded-xl p-4 sm:p-6 border-2 border-sl-purple/50"
+              className="bg-sl-gray/30 backdrop-blur-sm rounded-xl p-4 sm:p-6 border-2 border-sl-purple/50 overflow-hidden"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    value={activity.icon}
-                    onChange={(e) => updateActivityIcon(activity.id, e.target.value)}
-                    className="w-12 h-12 bg-sl-dark/50 text-2xl text-center rounded-lg border border-sl-purple/30 focus:border-sl-gold/50 focus:outline-none"
-                  />
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 flex items-center justify-center bg-sl-dark/50 rounded-lg border border-sl-purple/30">
+                    <ActivityIcon id={activity.id} size={24} />
+                  </div>
                   <input
                     type="text"
                     value={activity.name}
                     onChange={(e) => updateActivityName(activity.id, e.target.value)}
-                    className="text-xl font-bold text-white bg-transparent border-b-2 border-transparent hover:border-sl-purple/50 focus:border-sl-gold focus:outline-none"
+                    className="text-lg sm:text-xl font-bold text-white bg-transparent border-b-2 border-transparent hover:border-sl-purple/50 focus:border-sl-gold focus:outline-none min-w-0 w-full"
                   />
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                  <div className="flex items-center gap-1 sm:gap-2">
                     <input
                       type="checkbox"
                       checked={activity.isScored !== false}
                       onChange={() => toggleActivityScoring(activity.id)}
-                      className="w-5 h-5 rounded border-2 border-sl-purple cursor-pointer accent-sl-purple"
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded border-2 border-sl-purple cursor-pointer accent-sl-purple"
                     />
-                    <span className="text-sl-light text-sm hidden sm:inline">
-                      {activity.isScored !== false ? 'Counts for XP' : 'No XP'}
+                    <span className="text-sl-light text-xs sm:text-sm whitespace-nowrap">
+                      {activity.isScored !== false ? 'XP' : 'No XP'}
                     </span>
                   </div>
                   <button
                     onClick={() => setEditingActivity(editingActivity === activity.id ? null : activity.id)}
-                    className="text-sl-gold hover:text-sl-gold/80 p-2"
+                    className="text-sl-gold hover:text-sl-gold/80 p-1 sm:p-2"
                   >
                     {editingActivity === activity.id ? '✕' : '✎'}
                   </button>
                   {activity.id !== 'notes' && (
                     <button
                       onClick={() => removeActivity(activity.id)}
-                      className="text-red-400 hover:text-red-300 p-2"
+                      className="text-red-400 hover:text-red-300 p-1 sm:p-2"
                     >
                       🗑️
                     </button>
@@ -337,7 +326,7 @@ export default function Dashboard() {
                         key={subGoal.id}
                         className="flex items-center gap-2 bg-sl-dark/50 rounded-lg px-3 py-2 border border-sl-purple/30"
                       >
-                        <span>{subGoal.icon}</span>
+                        <ActivityIcon id={subGoal.id} size={18} />
                         <span className="text-white text-sm">{subGoal.name}</span>
                         {editingActivity === activity.id && (
                           <button
@@ -357,13 +346,6 @@ export default function Dashboard() {
                   {/* Add sub-goal form */}
                   {editingActivity === activity.id && (
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <input
-                        type="text"
-                        value={newSubGoal.icon}
-                        onChange={(e) => setNewSubGoal({ ...newSubGoal, icon: e.target.value })}
-                        placeholder="🎯"
-                        className="w-12 bg-sl-dark/50 text-white text-center rounded-lg p-2 border border-sl-purple/30 focus:border-sl-gold/50 focus:outline-none"
-                      />
                       <input
                         type="text"
                         value={newSubGoal.name}
