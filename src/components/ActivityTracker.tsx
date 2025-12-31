@@ -1,5 +1,6 @@
 import { Activity, ActivityData } from '@/types';
 import { useState, useEffect, useMemo } from 'react';
+import { ActivityIcon } from './icons';
 
 interface ActivityTrackerProps {
   activities: Activity[];
@@ -77,7 +78,7 @@ export default function ActivityTracker({ activities, activityData, onActivityTo
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 sm:gap-3">
-                      <span className="text-2xl sm:text-3xl">{activity.icon}</span>
+                      <ActivityIcon id={activity.id} size={32} />
                       <div>
                         <span className="text-base sm:text-lg font-semibold text-white">{activity.name}</span>
                         {hasSubGoals && (
@@ -124,7 +125,7 @@ export default function ActivityTracker({ activities, activityData, onActivityTo
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">{subGoal.icon}</span>
+                            <ActivityIcon id={subGoal.id} size={20} />
                             <span className="text-sm font-medium text-white">{subGoal.name}</span>
                           </div>
                           <input
@@ -146,8 +147,8 @@ export default function ActivityTracker({ activities, activityData, onActivityTo
 
       {/* Notes Section */}
       <div className="bg-sl-gray/30 backdrop-blur-sm rounded-lg p-4 sm:p-6 border-2 border-sl-purple/50">
-        <h2 className="text-xl sm:text-2xl font-bold text-sl-gold mb-3 sm:mb-4">
-          {notesActivity?.icon || '📝'} Today&apos;s Journal
+        <h2 className="text-xl sm:text-2xl font-bold text-sl-gold mb-3 sm:mb-4 flex items-center gap-2">
+          <ActivityIcon id="notes" size={28} /> Today&apos;s Journal
         </h2>
         <p className="text-sl-light/50 text-xs mb-3">Notes don&apos;t count towards XP</p>
         <textarea

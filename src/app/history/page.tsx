@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Activity, ActivityData, DEFAULT_ACTIVITIES } from '@/types';
+import { ActivityIcon } from '@/components/icons';
 import { format, subDays, parseISO } from 'date-fns';
 
 export default function HistoryPage() {
@@ -212,7 +213,7 @@ export default function HistoryPage() {
                       }`}
                     >
                       <div className="flex items-center gap-1.5 sm:gap-2">
-                        <span className="text-xl sm:text-2xl">{activity.icon}</span>
+                        <ActivityIcon id={activity.id} size={24} />
                         <span className="text-white text-xs sm:text-sm">{activity.name}</span>
                       </div>
                       {selectedDayData[activity.id] && (
@@ -229,7 +230,7 @@ export default function HistoryPage() {
                                 key={subGoal.id}
                                 className={`text-xs flex items-center gap-1 ${isCompleted ? 'text-sl-gold' : 'text-sl-light/50'}`}
                               >
-                                <span>{subGoal.icon}</span>
+                                <ActivityIcon id={subGoal.id} size={14} />
                                 <span>{subGoal.name}</span>
                                 {isCompleted && <span>✓</span>}
                               </div>
