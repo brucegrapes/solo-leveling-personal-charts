@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDatabase } from '@/lib/mongodb';
+import connectDB from '@/lib/mongodb';
+import { Settings } from '@/models';
 import { auth } from '@/lib/auth';
 import { DEFAULT_ACTIVITIES } from '@/types';
 
@@ -12,10 +13,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const db = await getDatabase();
-    const userConfig = await db.collection('userConfig').findOne({
-      userId: session.user.id
-    });
+    await connectDB();
+    const userConfig = await Settings.findOne({ userId: session.user.id });
 
     return NextResponse.json({
       config: userConfig?.config || {
@@ -40,16 +39,14 @@ export async function POST(req: NextRequest) {
 
     const config = await req.json();
 
-    const db = await getDatabase();
-    await db.collection('userConfig').updateOne(
+    await connectDB();
+    await Settings.findOneAndUpdate(
       { userId: session.user.id },
       {
-        $set: {
-          config,
-          updatedAt: new Date()
-        }
+        config,
+        updatedAt: new Date()
       },
-      { upsert: true }
+      { upsert: true, new: true }
     );
 
     return NextResponse.json({ success: true });

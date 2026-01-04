@@ -42,7 +42,7 @@ export default function Home() {
 
   const fetchConfig = async () => {
     try {
-      const response = await fetch('/api/config');
+      const response = await fetch('/api/settings');
       if (response.ok) {
         const data = await response.json();
         if (data.config?.activities && data.config.customized) {
@@ -56,7 +56,7 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('/api/data');
+      const response = await fetch('/api/activities');
       if (response.ok) {
         const data = await response.json();
         setActivityData(data.activityData);
@@ -70,7 +70,7 @@ export default function Home() {
   const saveData = async (newActivityData: ActivityData, newUserStats: UserStats) => {
     setSyncing(true);
     try {
-      await fetch('/api/data', {
+      await fetch('/api/activities', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

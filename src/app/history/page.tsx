@@ -31,7 +31,7 @@ export default function HistoryPage() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('/api/data');
+      const response = await fetch('/api/activities');
       if (response.ok) {
         const data = await response.json();
         setActivityData(data.activityData);
@@ -43,7 +43,7 @@ export default function HistoryPage() {
 
   const fetchConfig = async () => {
     try {
-      const response = await fetch('/api/config');
+      const response = await fetch('/api/settings');
       if (response.ok) {
         const data = await response.json();
         if (data.config?.activities && data.config.customized) {

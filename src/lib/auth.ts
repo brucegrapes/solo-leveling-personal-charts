@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { getDatabase } from "@/lib/mongodb";
+import connectDB from "@/lib/mongodb";
+import { User } from "@/models";
 import bcrypt from "bcryptjs";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -16,8 +17,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        const db = await getDatabase();
-        const user = await db.collection('users').findOne({
+        await connectDB();
+        const user = await User.findOne({
           username: credentials.username as string
         });
 
@@ -38,6 +39,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: user._id.toString(),
           name: user.username,
           email: user.email || '',
+          role: user.role,
         };
       }
     })
@@ -49,12 +51,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
       return session;
     }

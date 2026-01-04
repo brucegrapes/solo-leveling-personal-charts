@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDatabase } from '@/lib/mongodb';
+import connectDB from '@/lib/mongodb';
+import { User } from '@/models';
+import { UserRole } from '@/models/User';
 import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
@@ -27,10 +29,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const db = await getDatabase();
+    await connectDB();
     
     // Check if user already exists
-    const existingUser = await db.collection('users').findOne({ username });
+    const existingUser = await User.findOne({ username });
     if (existingUser) {
       return NextResponse.json(
         { error: 'Username already exists' },
@@ -41,16 +43,17 @@ export async function POST(req: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
-    const result = await db.collection('users').insertOne({
+    // Create user with default Player role
+    const newUser = await User.create({
       username,
       password: hashedPassword,
       email: email || '',
+      role: UserRole.PLAYER,
       createdAt: new Date(),
     });
 
     return NextResponse.json(
-      { message: 'User created successfully', userId: result.insertedId },
+      { message: 'User created successfully', userId: newUser._id },
       { status: 201 }
     );
   } catch (error) {

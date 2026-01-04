@@ -18,7 +18,7 @@
  *   docker exec -it <container_name> npm run migrate
  */
 
-import { MongoClient } from 'mongodb';
+import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
@@ -52,25 +52,22 @@ async function migrateActivities() {
   console.log(`📁 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Connecting to MongoDB...`);
 
-  const client = new MongoClient(uri);
-
   try {
-    await client.connect();
+    await mongoose.connect(uri);
     console.log('✅ Connected to MongoDB');
 
-    const db = client.db('solo-leveling');
-    const userDataCollection = db.collection('userData');
+    const Player = mongoose.model('Player');
 
-    // Get all user data documents
-    const users = await userDataCollection.find({}).toArray();
+    // Get all player data documents
+    const users = await Player.find({}).lean();
     console.log(`📊 Found ${users.length} user(s) to migrate`);
 
     let totalMigrated = 0;
     let totalSkipped = 0;
 
     for (const user of users) {
-      const userId = user.userId;
-      const activityData = user.activityData || {};
+      const userId = (user as any).userId;
+      const activityData = (user as any).activityData || {};
       let hasChanges = false;
       const migratedActivityData: Record<string, Record<string, any>> = {};
 
@@ -101,7 +98,7 @@ async function migrateActivities() {
 
       if (hasChanges) {
         // Update the document
-        await userDataCollection.updateOne(
+        await Player.updateOne(
           { userId },
           {
             $set: {
@@ -129,7 +126,7 @@ async function migrateActivities() {
     console.error('❌ Migration failed:', error);
     process.exit(1);
   } finally {
-    await client.close();
+    await mongoose.disconnect();
     console.log('🔌 Disconnected from MongoDB');
   }
 }

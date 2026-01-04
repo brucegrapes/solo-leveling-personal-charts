@@ -8,8 +8,8 @@ services:
     environment:
       MONGO_INITDB_DATABASE: solo-leveling
     volumes:
-      - /var/lib/solo-leveling/mongodb/data:/data/db
-      - /var/lib/solo-leveling/mongodb/config:/data/configdb
+      - /home/brucegrapes/solo-leveling-data/mongodb/db:/data/db
+      - /home/brucegrapes/solo-leveling-data/mongodb/config:/data/configdb
     networks:
       - solo-leveling-network
     healthcheck:
@@ -22,13 +22,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      network: host
     container_name: solo-leveling-app
     restart: unless-stopped
     environment:
       - NODE_ENV=production
       - MONGODB_URI=mongodb://mongodb:27017/solo-leveling
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - NEXTAUTH_URL=https://angryboy.tplinkdns.com
+      - NEXTAUTH_URL=https://monarchdomain.in
       - AUTH_TRUST_HOST=true
     depends_on:
       mongodb:
@@ -36,7 +37,7 @@ services:
     networks:
       - solo-leveling-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -46,8 +47,7 @@ services:
     container_name: solo-leveling-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "8443:8443"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ./ssl:/etc/nginx/ssl

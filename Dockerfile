@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -12,11 +12,11 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the application (migrations will run at container startup)
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
@@ -32,8 +32,13 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/migrations ./migrations
+COPY --from=builder /app/migrate-mongo-config.js ./migrate-mongo-config.js
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
 # Set correct permissions
+RUN chmod +x ./docker-entrypoint.sh
 RUN chown -R nextjs:nodejs /app
 
 USER nextjs
@@ -43,5 +48,6 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Start the application
+# Use entrypoint to run migrations before starting server
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "server.js"]

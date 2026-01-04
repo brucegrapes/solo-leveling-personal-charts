@@ -95,3 +95,61 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 });
+
+// Push event - show notification when push is received
+self.addEventListener('push', (event) => {
+  console.log('Push event received:', event);
+  
+  let notificationData = {
+    title: 'Solo Leveling Tracker',
+    body: 'You have a new notification!',
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/icon-192x192.png',
+    image: null,
+  };
+
+  // Try to parse the push data
+  if (event.data) {
+    try {
+      const data = event.data.json();
+      if (data.notification) {
+        notificationData = {
+          ...notificationData,
+          ...data.notification,
+        };
+      }
+    } catch (e) {
+      console.log('Could not parse push data:', e);
+      notificationData.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: notificationData.body,
+    icon: notificationData.icon,
+    badge: notificationData.badge,
+    image: notificationData.image,
+    tag: 'solo-leveling-notification',
+    requireInteraction: false,
+    data: {
+      dateOfArrival: Date.now(),
+      primaryKey: 1,
+    },
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(notificationData.title, options)
+  );
+});
+
+// Notification click event
+self.addEventListener('notificationclick', (event) => {
+  console.log('Notification clicked:', event);
+  
+  event.notification.close();
+  
+  // Open the app when notification is clicked
+  event.waitUntil(
+    clients.openWindow('/')
+  );
+});

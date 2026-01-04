@@ -7,7 +7,7 @@ services:
     container_name: solo-leveling-mongodb-local
     restart: unless-stopped
     ports:
-      - "27018:27017"  # Different port from production (27017)
+      - "27018:27018"  # Different port from production (27017)
     environment:
       MONGO_INITDB_DATABASE: solo-leveling-local
     volumes:
@@ -16,7 +16,7 @@ services:
     networks:
       - solo-leveling-local-network
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/solo-leveling-local --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27018/solo-leveling-local --quiet
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,15 +25,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.local
-    container_name: solo-leveling-app-local
+      network: host
+    container_name: solo-leveling-app-local-v2
     restart: unless-stopped
     ports:
-      - "3001:3000"  # Different port from production (2025/2026)
+      - "3001:3001"  # Map host 3001 to container 3001
     environment:
       - NODE_ENV=development
       - MONGODB_URI=mongodb://mongodb-local:27017/solo-leveling-local
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-dev-secret-key-change-in-production}
-      - NEXTAUTH_URL=http://localhost:3001
       - AUTH_TRUST_HOST=true
     depends_on:
       mongodb-local:

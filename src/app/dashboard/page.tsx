@@ -31,7 +31,7 @@ export default function Dashboard() {
 
   const fetchConfig = async () => {
     try {
-      const response = await fetch('/api/config');
+      const response = await fetch('/api/settings');
       if (response.ok) {
         const data = await response.json();
         if (data.config?.activities && data.config.customized) {
@@ -46,7 +46,7 @@ export default function Dashboard() {
   const saveConfig = async (newActivities: Activity[]) => {
     setSaving(true);
     try {
-      await fetch('/api/config', {
+      await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
