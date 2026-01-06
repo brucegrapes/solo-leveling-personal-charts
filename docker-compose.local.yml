@@ -7,7 +7,7 @@ services:
     container_name: solo-leveling-mongodb-local
     restart: unless-stopped
     ports:
-      - "27018:27018"  # Different port from production (27017)
+      - "27018:27017"  # Map host 27018 to container 27017
     environment:
       MONGO_INITDB_DATABASE: solo-leveling-local
     volumes:
@@ -16,7 +16,7 @@ services:
     networks:
       - solo-leveling-local-network
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27018/solo-leveling-local --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/solo-leveling-local --quiet
       interval: 10s
       timeout: 5s
       retries: 5

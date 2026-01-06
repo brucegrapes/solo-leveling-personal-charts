@@ -2,6 +2,7 @@
 
 import { saveSubscription, sendNotification } from '@/services/webnotifcation';
 import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/auth-helpers';
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,7 +10,8 @@ export async function POST(req: NextRequest) {
     const { action, subscription, title, body: notificationBody, image, payload, delay, ttl } = body;
 
     if (action === 'subscribe') {
-      await saveSubscription(subscription);
+      const user = await getCurrentUser();
+      await saveSubscription(subscription, user?.id);
       return NextResponse.json({ message: 'Subscription added successfully.' }, { status: 201 });
     }
 

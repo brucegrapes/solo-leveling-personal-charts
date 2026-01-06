@@ -1,64 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
-interface User {
-  _id: string;
-  username: string;
-  email: string;
-  role: string;
-  createdAt: string;
-}
 
 export default function PlaygroundPage() {
   const router = useRouter();
   const [notificationTitle, setNotificationTitle] = useState('🎮 Solo Leveling Tracker');
   const [notificationBody, setNotificationBody] = useState('Test notification from your personal training tracker!');
   const [isLoading, setIsLoading] = useState(false);
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  const loadUsers = async () => {
-    setIsLoadingUsers(true);
-    try {
-      const response = await fetch('/api/users');
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data.users);
-      }
-    } catch (error) {
-      console.error('Error loading users:', error);
-    }
-    setIsLoadingUsers(false);
-  };
-
-  const handleRoleChange = async (userId: string, newRole: string) => {
-    try {
-      const response = await fetch('/api/users', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId, role: newRole }),
-      });
-
-      if (response.ok) {
-        alert('Role updated successfully!');
-        loadUsers(); // Reload users
-      } else {
-        const data = await response.json();
-        alert(`Failed to update role: ${data.error}`);
-      }
-    } catch (error) {
-      console.error('Error updating role:', error);
-      alert('Failed to update role');
-    }
-  };
 
   const handleTestNotification = async () => {
     setIsLoading(true);
@@ -155,73 +104,34 @@ export default function PlaygroundPage() {
         </div>
 
         {/* Placeholder for Future Features */}
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-purple-500/20 shadow-xl mb-6">
-          <h2 className="text-2xl font-bold text-purple-400 mb-4">👥 User Role Management</h2>
-          
-          {isLoadingUsers ? (
-            <div className="text-center text-gray-400 py-8">Loading users...</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b border-gray-700">
-                    <th className="pb-3 text-purple-400 font-semibold">Username</th>
-                    <th className="pb-3 text-purple-400 font-semibold">Email</th>
-                    <th className="pb-3 text-purple-400 font-semibold">Current Role</th>
-                    <th className="pb-3 text-purple-400 font-semibold">Change Role</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user._id} className="border-b border-gray-700/50">
-                      <td className="py-3 text-white">{user.username}</td>
-                      <td className="py-3 text-gray-400">{user.email || '-'}</td>
-                      <td className="py-3">
-                        <span className={`px-3 py-1 rounded-full text-sm ${
-                          user.role === 'System Designer' 
-                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/50' 
-                            : 'bg-blue-500/20 text-blue-400 border border-blue-500/50'
-                        }`}>
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="py-3">
-                        <select
-                          value={user.role}
-                          onChange={(e) => handleRoleChange(user._id, e.target.value)}
-                          className="px-3 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:border-purple-500"
-                        >
-                          <option value="Player">Player</option>
-                          <option value="System Designer">System Designer</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* Placeholder for Future Features */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 border border-purple-500/20 shadow-xl">
-          <h2 className="text-2xl font-bold text-purple-400 mb-4">🚀 Coming Soon</h2>
+          <h2 className="text-2xl font-bold text-purple-400 mb-4">🚀 Feature Testing Area</h2>
           <div className="space-y-3 text-gray-400">
+            <p className="mb-4">This is a testing ground for new features before they go live.</p>
             <div className="flex items-center gap-3">
-              <span className="text-gray-600">○</span>
-              <span>Database Monitoring</span>
+              <span className="text-purple-600">✓</span>
+              <span>Push Notifications - Ready for testing</span>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-gray-600">○</span>
-              <span>Feature Flags</span>
+              <span>Experimental Features - Coming Soon</span>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-gray-600">○</span>
-              <span>Analytics Dashboard</span>
+              <span>Beta Testing Tools - In Development</span>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-gray-600">○</span>
-              <span>System Logs Viewer</span>
+            <div className="mt-6 p-4 bg-purple-900/20 rounded-lg border border-purple-500/30">
+              <p className="text-purple-400 font-semibold mb-2">💡 System Designer?</p>
+              <p className="text-sm">
+                If you're a System Designer, check out the{' '}
+                <button
+                  onClick={() => router.push('/admin')}
+                  className="text-purple-400 hover:text-purple-300 underline font-semibold"
+                >
+                  Admin Panel
+                </button>
+                {' '}for full system control.
+              </p>
             </div>
           </div>
         </div>

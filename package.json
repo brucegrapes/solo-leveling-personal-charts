@@ -32,14 +32,14 @@
     "bcryptjs": "^2.4.3",
     "date-fns": "^3.3.1",
     "jose": "^5.10.0",
+    "migrate-mongo": "^14.0.7",
     "mongoose": "^9.1.1",
     "next": "^15.1.0",
     "next-auth": "^5.0.0-beta.30",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "recharts": "^2.12.7",
-    "web-push": "^3.6.7",
-    "migrate-mongo": "^14.0.7"
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

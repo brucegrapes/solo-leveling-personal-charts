@@ -296,6 +296,22 @@ export default function Home() {
             >
               ⚙️ Customize Dashboard
             </Link>
+            {session?.user?.role === 'System Designer' && (
+              <>
+                <Link
+                  href="/admin"
+                  className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2 px-4 sm:px-6 rounded-lg border-2 border-purple-400 transition-all text-sm sm:text-base shadow-lg"
+                >
+                  ⚡ Admin Panel
+                </Link>
+                <Link
+                  href="/playground"
+                  className="inline-block bg-purple-900/50 hover:bg-purple-900 text-white font-semibold py-2 px-4 sm:px-6 rounded-lg border-2 border-purple-500/50 transition-all text-sm sm:text-base"
+                >
+                  🛠️ Playground
+                </Link>
+              </>
+            )}
           </div>
         </header>
 
