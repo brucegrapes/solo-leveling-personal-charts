@@ -43,7 +43,19 @@ export async function POST(req: NextRequest) {
     const { activityData, userStats } = await req.json();
 
     await connectDB();
-    await Player.findOneAndUpdate(
+    
+    console.log('🎮 Activities POST - session.user.id:', session.user.id);
+    console.log('🎮 Activities POST - session.user.name:', session.user.name);
+    
+    // Get existing player data to calculate XP difference
+    const existingPlayer = await Player.findOne({ userId: session.user.id });
+    console.log('🎮 Found existing player:', existingPlayer ? 'YES' : 'NO', existingPlayer?.userId);
+    const oldXP = existingPlayer?.userStats?.experience || 0;
+    const newXP = userStats?.experience || 0;
+    const xpGained = newXP - oldXP;
+
+    // Update player data
+    const updatedPlayer = await Player.findOneAndUpdate(
       { userId: session.user.id },
       {
         activityData,
@@ -52,6 +64,16 @@ export async function POST(req: NextRequest) {
       },
       { upsert: true, new: true }
     );
+
+    // Update leaderboard XP tracking if XP was gained
+    if (xpGained > 0 && updatedPlayer) {
+      // Add XP to weekly, monthly, and lifetime trackers
+      updatedPlayer.weeklyXP = (updatedPlayer.weeklyXP || 0) + xpGained;
+      updatedPlayer.monthlyXP = (updatedPlayer.monthlyXP || 0) + xpGained;
+      updatedPlayer.lifetimeXP = (updatedPlayer.lifetimeXP || 0) + xpGained;
+      
+      await updatedPlayer.save();
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

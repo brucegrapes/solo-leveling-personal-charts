@@ -285,6 +285,12 @@ export default function Home() {
           <p className="text-sl-light text-sm sm:text-base lg:text-lg">Track your journey to become the strongest</p>
           <div className="mt-3 sm:mt-4 flex flex-wrap justify-center gap-3">
             <Link
+              href="/leaderboard"
+              className="inline-block bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-semibold py-2 px-4 sm:px-6 rounded-lg border-2 border-yellow-400/50 transition-all text-sm sm:text-base shadow-lg"
+            >
+              🏆 Leaderboards
+            </Link>
+            <Link
               href="/history"
               className="inline-block bg-sl-purple/50 hover:bg-sl-purple text-white font-semibold py-2 px-4 sm:px-6 rounded-lg border-2 border-sl-gold/50 transition-all text-sm sm:text-base"
             >
