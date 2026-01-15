@@ -49,3 +49,7 @@ next-env.d.ts
 
 # Backups
 /backups
+
+# User uploads
+/public/uploads/*
+!/public/uploads/.gitkeep

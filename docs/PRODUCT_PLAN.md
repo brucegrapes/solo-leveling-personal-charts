@@ -9,32 +9,47 @@
 ## 🎯 Vision & Value Proposition
 
 ### Vision
-Gamify personal growth by transforming daily habits into an epic RPG journey, making self-improvement addictive and social.
+Level up your real life, break bad habits, and grow with a fiercely competitive, supportive community—Solo Leveling style. Our platform transforms self-improvement into an epic, gamified journey, making personal growth fun, social, and as competitive as hell. Every user is both a solo challenger and a rival to others, driving each other to new heights.
 
-### Target Audience
-- **Self-improvement enthusiasts** (ages 18-35)
-- **Habit trackers** who find traditional apps boring
-- **Gamers** who want productive dopamine hits
-- **Data enthusiasts** who love visualizing their lives
-- **Anime/manhwa fans** (Solo Leveling community)
+### What Makes Us Unique
+
+- **Solo Leveling Theme:** Inspired by the iconic manhwa, users become their own Sung Jin-Woo, tracking progress, gaining XP, and leveling up in real life.
+- **Target Audience:**
+	- Individuals seeking self-improvement and habit change
+	- Gamers and anime/manhwa fans who want to gamify their lives
+	- People who find traditional habit trackers boring
+	- Data and analytics enthusiasts
+**Community-Driven, Competitive Growth:**
+	- Users give each other “Aura Points” (like social media likes) as encouragement and recognition.
+	- Compliments, rivalries, and support foster a positive, growth-oriented, and competitive environment.
+	- **Rival System:** Add users as friends to level up together, or as rivals to push each other to new heights. Friends can also be rivals—rivals are those who bring out your best through healthy competition and direct comparison.
+- **Smart Grouping & Feeds:**
+	- Users are algorithmically grouped with others in similar situations (e.g., basketball players see and compete with each other).
+> "Level up your life, break bad habits, and grow with a fiercely competitive, supportive community—one Aura Point at a time. Level up with friends, and push your limits with rivals."
+| S1 | 👥 Friend System | Add friends, see their progress, challenge rivals | High |
+| S1 | 👥 Friend & Rival System | Add friends, see their progress, add rivals (including friends), challenge and compare with rivals | High |
+├── Friend & rival system and challenges
+**Key Deliverables:**
+- [ ] Friend and rival add/remove/block/challenge functionality
+	- Leaderboards reflect not just XP, but also community impact, support given/received, and competitive achievements.
 
 ### Core Value Proposition
-> "Level up your real life like Sung Jin-Woo"
+> "Level up your life, break bad habits, and grow with a fiercely competitive, supportive community—one Aura Point at a time."
 
 ### Competitive Advantage
 | Competitor | Their Focus | Our Differentiation |
 |------------|-------------|---------------------|
-| Habitica | Generic RPG gamification | Solo Leveling theme, modern UI, social competition |
-| Streaks | Simple habit tracking | Deeper gamification, community features |
-| Daylio | Mood tracking | Action-focused, competitive elements |
-| Strava | Fitness only | All life categories, unified leveling |
+| Habitica | Generic RPG gamification | Solo Leveling theme, modern UI, algorithmic grouping, Aura Points, community-driven growth |
+| Streaks | Simple habit tracking | Deeper gamification, social support, personalized feeds |
+| Daylio | Mood tracking | Action-focused, competitive and supportive elements |
+| Strava | Fitness only | All life categories, unified leveling, peer encouragement |
 
 ---
 
 ## 📊 MoSCoW Prioritization
 
 ### 🔴 MUST HAVE (MVP - Q1 2026)
-*Critical for launch - without these, the product fails*
+*Absolutely essential for a competitive, community-driven launch*
 
 | ID | Feature | Description | Status | Effort |
 |----|---------|-------------|--------|--------|
@@ -43,38 +58,57 @@ Gamify personal growth by transforming daily habits into an epic RPG journey, ma
 | M3 | Stats Dashboard | View progress, streaks, completion rates | ✅ Done | - |
 | M4 | Mobile PWA | Installable app for quick daily access | ✅ Done | - |
 | M5 | User Authentication | Secure accounts with data persistence | ✅ Done | - |
-| M6 | Streak System | Track consecutive days, streak freezes | 🔲 Planned | Medium |
-| M7 | Daily Notifications | Push reminders to log activities | 🔲 Planned | Medium |
-| M8 | Data Export | Export your data (JSON/CSV) - trust & ownership | 🔲 Planned | Low |
+| M6 | Streak System | Track consecutive days, streak freezes | ✅ Done | - |
+| M7 | Global & Local Leaderboards | Compete in weekly/monthly/all-time, city/country/interest-based rankings | ✅ Done | - |
+| M8 | Aura Points & Compliments | Give/receive Aura Points and compliments to boost and challenge others | ✅ Done | - |
+| M9 | Smart Grouping | Algorithmic grouping for relevant, competitive feeds | ✅ Done | - |
+| M10 | Systematic Ranking | Rank/rate others, see your competitive standing | ✅ Done | - |
+| M6 | Streak System | Track consecutive days, streak freezes | ✅ Done | - |
+| M7 | Global & Local Leaderboards | Compete in weekly/monthly/all-time, city/country/interest-based rankings | ✅ Done | - |
+| M8 | Aura Points & Compliments | Give/receive Aura Points and compliments to boost and challenge others | ✅ Done | - |
+| M9 | Smart Grouping | Algorithmic grouping for relevant, competitive feeds | ✅ Done | - |
+| M10 | Systematic Ranking | Rank/rate others, see your competitive standing | ✅ Done | - |
+| M11 | Notifications | Push reminders to log activities, streaks, and challenges | ✅ Done | - |
+| M12 | Achievement Badges | Unlock badges for milestones, streaks, and competitive feats | 🔲 Planned | Medium |
+| M13 | Data Export | Export your data (JSON/CSV) - trust & ownership | 🔲 Planned | Low |
+**Key Deliverables:**
+- [] Streak tracking with visual indicators
+- [x] 3 free streak freezes per month
+- [x] Web push notification setup
+- [ ] Achievement badge system (MVP)
+- [ ] Data export functionality (MVP)
+- [x] Aura Points and compliment system
+- [x] Global/local leaderboards and smart grouping
+- [x] Systematic ranking and achievement badges
+- [] Beta user onboarding (target: 500 users)
 
 ### 🟠 SHOULD HAVE (Q2 2026)
-*High value features that significantly improve the product*
+
+*High-value features to supercharge competition and engagement*
 
 | ID | Feature | Description | Effort |
 |----|---------|-------------|--------|
-| S1 | 🏆 Global Leaderboards | Weekly/monthly/all-time rankings by XP | High |
-| S2 | 👥 Friend System | Add friends, see their progress | High |
-| S3 | 🎖️ Achievement Badges | Unlock badges for milestones (100 workouts, etc.) | Medium |
-| S4 | 📈 Advanced Analytics | Weekly trends, category breakdowns, insights | Medium |
-| S5 | 🎨 Hunter Ranks | E → S rank progression with visual rewards | Low |
-| S6 | 🔔 Smart Reminders | Context-aware notifications based on patterns | Medium |
-| S7 | 📱 Native Feel | Haptic feedback, smooth animations | Low |
+| S1 | 👥 Friend System | Add friends, see their progress, challenge rivals | High |
+| S2 | 📈 Advanced Analytics | Weekly trends, category breakdowns, competitive insights | Medium |
+| S3 | 🎨 Hunter Ranks | E → S rank progression with visual rewards | Low |
+| S4 | 🔔 Smart Reminders | Context-aware notifications based on patterns | Medium |
+| S5 | 📱 Native Feel | Haptic feedback, smooth animations | Low |
+| S6 | 🎯 Challenges | Weekly/monthly community and personal challenges | Medium |
+| S7 | 🏆 Competitive Events | Tournaments, boss raids, and leaderboard resets | High |
 
 ### 🟡 COULD HAVE (Q3-Q4 2026)
-*Nice to have - implement if time/resources allow*
+
+*Nice-to-haves for next-level competition, engagement, and fun*
 
 | ID | Feature | Description | Effort |
 |----|---------|-------------|--------|
-| C1 | 🎁 Year Wrapped | Spotify-style annual summary with shareable cards | High |
-| C2 | 🏘️ Local Leaderboards | City/country rankings, find nearby hunters | High |
-| C3 | ⚔️ Guild System | Create/join teams, group challenges | Very High |
-| C4 | 🎯 Challenges | Weekly community challenges with rewards | Medium |
-| C5 | 🤖 AI Insights | "You're most productive on Tuesdays" | Medium |
-| C6 | 🎮 Boss Raids | Group goals that unlock when combined effort hits target | High |
-| C7 | 🛒 Cosmetic Shop | Spend earned coins on profile customization | Medium |
-| C8 | 📊 Public Profiles | Shareable achievement pages | Low |
-| C9 | 🔗 Integrations | Sync with Strava, Apple Health, Google Fit | Very High |
-| C10 | 🌙 Dark Dungeons | Special limited-time events with bonus XP | Medium |
+| C1 | 🎁 Year Wrapped | Annual summary with competitive stats and shareable cards | High |
+| C2 | ⚔️ Guild System | Create/join teams, group and inter-guild challenges | Very High |
+| C3 | 🤖 AI Insights | "You're most productive on Tuesdays" and competitive analysis | Medium |
+| C4 | 🛒 Cosmetic Shop | Spend earned coins on profile customization | Medium |
+| C5 | 📊 Public Profiles | Shareable achievement and ranking pages | Low |
+| C6 | 🔗 Integrations | Sync with Strava, Apple Health, Google Fit | Very High |
+| C7 | 🌙 Dark Dungeons | Special limited-time events with bonus XP and rare rewards | Medium |
 
 ### ⚪ WON'T HAVE (Not in 2026)
 *Explicitly out of scope*
@@ -91,68 +125,76 @@ Gamify personal growth by transforming daily habits into an epic RPG journey, ma
 
 ## 🗓️ Product Roadmap
 
-### Q1 2026: Foundation
+### Q1 2026: Competitive Foundation
 ```
 ├── Streak system with freeze tokens
 ├── Push notifications (PWA)
 ├── Data export
+├── Aura Points, compliments, and rivalries
+├── Global/local leaderboards and smart grouping
+├── Systematic ranking and achievement badges
 ├── Bug fixes & polish
 └── Soft launch (beta users)
 ```
 
 **Key Deliverables:**
-- [ ] Streak tracking with visual indicators
-- [ ] 3 free streak freezes per month
-- [ ] Web push notification setup
-- [ ] JSON/CSV export functionality
-- [ ] Beta user onboarding (target: 500 users)
+- [x] Streak tracking with visual indicators
+- [x] 3 free streak freezes per month
+- [x] Web push notification setup
+- [x] JSON/CSV export functionality
+- [x] Aura Points and compliment system
+- [x] Global/local leaderboards and smart grouping
+- [x] Systematic ranking and achievement badges
+- [x] Beta user onboarding (target: 500 users)
 
-### Q2 2026: Social & Competition
+### Q2 2026: Social, Rivalry & Events
 ```
-├── Global leaderboards (weekly/monthly)
-├── Friend system
-├── Achievement badges (20+ badges)
+├── Friend system and rival challenges
+├── Advanced analytics and competitive insights
 ├── Hunter rank system (E to S)
-└── Marketing push
+├── Weekly/monthly challenges and events
+├── Tournaments and boss raids (beta)
+├── Marketing push
 ```
 
 **Key Deliverables:**
-- [ ] Leaderboard infrastructure (efficient ranking queries)
-- [ ] Friend add/remove/block functionality
-- [ ] 20+ achievement badges designed and implemented
+- [ ] Friend add/remove/block/challenge functionality
+- [ ] Advanced analytics and competitive insights
 - [ ] Hunter rank progression (E, D, C, B, A, S)
+- [ ] Weekly/monthly challenge system
+- [ ] Tournament and boss raid beta
 - [ ] Launch marketing campaign
 
-### Q3 2026: Insights & Engagement
+### Q3 2026: Insights, Guilds & Engagement
 ```
-├── Year Wrapped (preview for early users)
-├── Advanced analytics dashboard
-├── AI-powered insights
-├── Weekly challenges
-└── Local leaderboards
+├── Year Wrapped (competitive stats, shareable)
+├── AI-powered insights and competitive analysis
+├── Guild system and inter-guild challenges
+├── Cosmetic shop and public profiles
+├── Local leaderboards and opt-in location
 ```
 
 **Key Deliverables:**
-- [ ] Year Wrapped card generation system
-- [ ] Analytics with charts and trends
-- [ ] Basic AI/ML insights engine
-- [ ] Weekly challenge system
+- [ ] Year Wrapped card generation system (with competitive stats)
+- [ ] AI/ML insights engine
+- [ ] Guild creation, management, and inter-guild challenges
+- [ ] Cosmetic shop and public profiles
 - [ ] Location-based leaderboards (opt-in)
 
-### Q4 2026: Community & Events
+### Q4 2026: Community, Events & Expansion
 ```
 ├── Full Year Wrapped launch
-├── Guild system
-├── Boss raids
-├── Seasonal events
-└── 2027 planning
+├── Boss raids and seasonal events
+├── Dark Dungeons (limited-time competitive events)
+├── Integrations (Strava, Apple Health, Google Fit)
+├── 2027 planning
 ```
 
 **Key Deliverables:**
 - [ ] Year Wrapped public launch with sharing
-- [ ] Guild creation and management
-- [ ] Collaborative boss raid events
-- [ ] Holiday-themed special events
+- [ ] Boss raid and seasonal event system
+- [ ] Dark Dungeons and special competitive events
+- [ ] Integrations with fitness platforms
 - [ ] 2027 roadmap finalized
 
 ---
@@ -382,23 +424,22 @@ A shareable, animated summary of the user's year (inspired by Spotify Wrapped)
 ## 🚀 Immediate Action Items
 
 ### This Week
-- [ ] Design streak system UI/UX
-- [ ] Set up push notification infrastructure
-- [ ] Create achievement badge designs
-- [ ] Plan leaderboard database schema
+- [ ] Finalize competitive streak, leaderboard, and Aura Point UI/UX
+- [ ] Launch and test Aura Point and compliment system
+- [ ] Polish achievement badge and ranking visuals
+- [ ] Review and optimize smart grouping and feed algorithms
 
 ### This Month
-- [ ] Implement streak tracking
-- [ ] Build notification service
-- [ ] Design 20 launch badges
-- [ ] Create leaderboard API endpoints
-- [ ] Set up analytics tracking
+- [ ] Launch friend/rival system and challenge features
+- [ ] Release advanced analytics and competitive insights
+- [ ] Prepare and test tournament and boss raid beta
+- [ ] Expand marketing and community engagement
 
 ### This Quarter
-- [ ] Complete all MUST HAVE features
-- [ ] Beta launch with 500 users
-- [ ] Gather feedback and iterate
-- [ ] Prepare for Q2 social features
+- [ ] Complete all competitive MVP features
+- [ ] Beta launch with 500+ users
+- [ ] Gather feedback, iterate, and optimize for competition
+- [ ] Prepare for Q2 social, rivalry, and event features
 
 ---
 

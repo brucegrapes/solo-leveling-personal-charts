@@ -1,0 +1,18 @@
+# Uploads Directory
+
+This directory stores user-uploaded media files (images and videos).
+
+## Security Notes
+
+- Files are validated on upload (type and size)
+- Maximum file size: 20MB
+- Allowed types: JPEG, PNG, WebP, GIF, MP4, WebM, MOV
+- Files are automatically compressed on the client before upload
+
+## Backup
+
+Consider adding this directory to your backup strategy or use cloud storage (S3, Cloudinary, etc.) for production.
+
+## Gitignore
+
+This directory should be added to `.gitignore` to avoid committing user uploads to version control.

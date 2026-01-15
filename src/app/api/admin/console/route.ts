@@ -5,12 +5,21 @@ import User from '@/models/User';
 import Player from '@/models/Player';
 import Settings from '@/models/Settings';
 import Subscription from '@/models/Subscription';
+import { ADMIN_CONFIG } from '@/config/admin';
 
 export const dynamic = 'force-dynamic';
 
 // This is a dangerous endpoint - only for System Designer
 export async function POST(request: NextRequest) {
   try {
+    // Check if admin is disabled
+    if (!ADMIN_CONFIG.ADMIN_ENABLED) {
+      return NextResponse.json(
+        { error: ADMIN_CONFIG.DISABLED_MESSAGE },
+        { status: 503 }
+      );
+    }
+
     await requireSystemDesigner();
     await connectDB();
 
@@ -35,22 +44,51 @@ export async function POST(request: NextRequest) {
     
     // Helper function to send notification
     const sendPushNotification = async (subscriptionDoc: any, title: string, body: string, image?: string) => {
-      const sub = {
-        endpoint: subscriptionDoc.endpoint,
-        keys: {
-          p256dh: subscriptionDoc.p256dh,
-          auth: subscriptionDoc.auth
+      try {
+        if (!subscriptionDoc) {
+          return { success: false, error: 'No subscription provided' };
         }
-      };
-      const payload = JSON.stringify({
-        notification: {
-          title,
-          body,
-          image: image || '/icons/icon-192x192.png',
-        },
-      });
-      await webPush.sendNotification(sub, payload);
-      return { success: true };
+        
+        if (!subscriptionDoc.endpoint || !subscriptionDoc.p256dh || !subscriptionDoc.auth) {
+          return { success: false, error: 'Invalid subscription: missing required fields' };
+        }
+        
+        const sub = {
+          endpoint: subscriptionDoc.endpoint,
+          keys: {
+            p256dh: subscriptionDoc.p256dh,
+            auth: subscriptionDoc.auth
+          }
+        };
+        
+        const payload = JSON.stringify({
+          notification: {
+            title,
+            body,
+            image,
+          },
+        });
+        
+        const response = await webPush.sendNotification(sub, payload);
+        return { success: true, statusCode: response.statusCode };
+      } catch (error: any) {
+        // Handle specific errors
+        if (error.statusCode === 410 || error.statusCode === 404) {
+          return { 
+            success: false, 
+            error: 'Subscription expired or invalid',
+            statusCode: error.statusCode,
+            shouldDelete: true 
+          };
+        }
+        
+        return { 
+          success: false, 
+          error: error.message || 'Failed to send notification',
+          statusCode: error.statusCode,
+          errorName: error.name
+        };
+      }
     };
 
     const context = {

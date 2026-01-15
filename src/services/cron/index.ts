@@ -1,6 +1,8 @@
 import cron from 'node-cron';
 import { resetWeeklyXP, resetMonthlyXP } from '@/lib/leaderboard';
 import connectDB from '@/lib/mongodb';
+import { sendNotificationToSubscription } from '../webnotifcation';
+import { Player, Subscription } from '@/models';
 
 let cronJobsInitialized = false;
 
@@ -27,7 +29,6 @@ export function initializeCronJobs() {
       console.error('❌ Weekly XP reset failed:', error);
     }
   }, {
-    scheduled: true,
     timezone: 'UTC'
   });
 
@@ -42,7 +43,21 @@ export function initializeCronJobs() {
       console.error('❌ Monthly XP reset failed:', error);
     }
   }, {
-    scheduled: true,
+    timezone: 'UTC'
+  });
+
+  // Execute daily at 8am IST JOB to trigger notification for reminder to play
+  cron.schedule('0 2 * * *', async()=>{
+    await connectDB();
+    // Find all subscriptions to send notifications
+    const subscriptions = Subscription.find();
+    if(!subscriptions) return;
+    for await (const sub of subscriptions) {
+      const player = await Player.findById(sub.userId);
+      if(!player) continue;
+      await sendNotificationToSubscription(sub, 'Time to track your daily journer!', 'Come back and log your progress today to keep your streak alive!');
+    }
+  }, {
     timezone: 'UTC'
   });
 

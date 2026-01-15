@@ -291,6 +291,12 @@ export default function Home() {
               🏆 Leaderboards
             </Link>
             <Link
+              href="/posts"
+              className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2 px-4 sm:px-6 rounded-lg border-2 border-pink-400/50 transition-all text-sm sm:text-base shadow-lg"
+            >
+              🌐 Community Posts
+            </Link>
+            <Link
               href="/history"
               className="inline-block bg-sl-purple/50 hover:bg-sl-purple text-white font-semibold py-2 px-4 sm:px-6 rounded-lg border-2 border-sl-gold/50 transition-all text-sm sm:text-base"
             >

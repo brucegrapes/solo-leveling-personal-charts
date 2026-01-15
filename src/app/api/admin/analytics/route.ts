@@ -5,11 +5,20 @@ import User from '@/models/User';
 import Player from '@/models/Player';
 import Settings from '@/models/Settings';
 import Subscription from '@/models/Subscription';
+import { ADMIN_CONFIG } from '@/config/admin';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if admin is disabled
+    if (!ADMIN_CONFIG.ADMIN_ENABLED) {
+      return NextResponse.json(
+        { error: ADMIN_CONFIG.DISABLED_MESSAGE },
+        { status: 503 }
+      );
+    }
+
     await requireSystemDesigner();
     await connectDB();
 

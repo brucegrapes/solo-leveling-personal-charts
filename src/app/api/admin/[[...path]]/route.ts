@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-helpers';
 import { UserRole } from '@/models/User';
 import connectDB from '@/lib/mongodb';
+import { ADMIN_CONFIG } from '@/config/admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +19,14 @@ export async function GET(
   context: { params: Promise<{ path?: string[] }> }
 ) {
   try {
+    // Check if admin is disabled
+    if (!ADMIN_CONFIG.ADMIN_ENABLED) {
+      return NextResponse.json(
+        { error: ADMIN_CONFIG.DISABLED_MESSAGE },
+        { status: 503 }
+      );
+    }
+
     const isAuthorized = await checkAdminAuth();
     if (!isAuthorized) {
       return NextResponse.json(
@@ -93,6 +102,14 @@ export async function POST(
   context: { params: Promise<{ path?: string[] }> }
 ) {
   try {
+    // Check if admin is disabled
+    if (!ADMIN_CONFIG.ADMIN_ENABLED) {
+      return NextResponse.json(
+        { error: ADMIN_CONFIG.DISABLED_MESSAGE },
+        { status: 503 }
+      );
+    }
+
     const isAuthorized = await checkAdminAuth();
     if (!isAuthorized) {
       return NextResponse.json(
@@ -123,6 +140,14 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ pat
 
 export async function DELETE(request: NextRequest) {
   try {
+    // Check if admin is disabled
+    if (!ADMIN_CONFIG.ADMIN_ENABLED) {
+      return NextResponse.json(
+        { error: ADMIN_CONFIG.DISABLED_MESSAGE },
+        { status: 503 }
+      );
+    }
+
     const isAuthorized = await checkAdminAuth();
     if (!isAuthorized) {
       return NextResponse.json(

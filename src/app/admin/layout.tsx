@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { ADMIN_CONFIG } from '@/config/admin';
 
 export default function AdminLayout({
   children,
@@ -14,6 +15,13 @@ export default function AdminLayout({
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
+    // Check if admin is disabled
+    if (!ADMIN_CONFIG.ADMIN_ENABLED) {
+      alert(ADMIN_CONFIG.DISABLED_MESSAGE);
+      router.push('/dashboard');
+      return;
+    }
+
     if (status === 'loading') return;
 
     if (!session) {
