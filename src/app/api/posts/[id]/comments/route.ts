@@ -6,7 +6,7 @@ import { auth } from '@/lib/auth';
 // POST - Add a comment
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any,
 ) {
   try {
     const session = await auth();
@@ -26,7 +26,7 @@ export async function POST(
         { status: 404 }
       );
     }
-
+    const { params } = context;
     const post = await Post.findById(params.id);
     if (!post) {
       return NextResponse.json(
@@ -73,11 +73,11 @@ export async function POST(
 // GET - Get comments for a post
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any,
 ) {
   try {
     await connectDB();
-
+    const { params } = context;
     const post = await Post.findById(params.id).select('comments').lean();
     if (!post) {
       return NextResponse.json(

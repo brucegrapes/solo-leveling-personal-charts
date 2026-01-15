@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 // POST - Like a post
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: any,
 ) {
   try {
     const session = await auth();
@@ -28,6 +28,7 @@ export async function POST(
       );
     }
 
+    const { params } = context;
     const post = await Post.findById(params.id);
     if (!post) {
       return NextResponse.json(
