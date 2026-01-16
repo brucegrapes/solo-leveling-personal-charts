@@ -38,6 +38,8 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
+    volumes:
+      - uploads-data:/app/public/uploads
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000"]
       interval: 30s
@@ -58,7 +60,10 @@ services:
     networks:
       - solo-leveling-network
 
-volumes: {}
+
+volumes:
+  uploads-data:
+    driver: local
 
 networks:
   solo-leveling-network:

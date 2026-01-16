@@ -6,8 +6,10 @@ export interface IPost extends Document {
   userLevel: number;
   userTitle: string;
   content?: string;
-  mediaUrl: string;
-  mediaType: 'image' | 'video';
+  images: string[]; // Array of MinIO URLs
+  videos: string[]; // Array of MinIO URLs
+  mediaUrl: string; // Legacy field for backward compatibility
+  mediaType: 'image' | 'video'; // Legacy field
   fileSize: number;
   mimeType: string;
   likes: mongoose.Types.ObjectId[];
@@ -48,14 +50,22 @@ const PostSchema = new Schema<IPost>(
       maxlength: 1000,
       trim: true,
     },
+    images: {
+      type: [String],
+      default: [],
+    },
+    videos: {
+      type: [String],
+      default: [],
+    },
     mediaUrl: {
       type: String,
-      required: true,
+      required: false, // Make optional for backward compatibility
     },
     mediaType: {
       type: String,
       enum: ['image', 'video'],
-      required: true,
+      required: false, // Make optional for backward compatibility
     },
     fileSize: {
       type: Number,

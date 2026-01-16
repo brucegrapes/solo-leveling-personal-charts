@@ -10,7 +10,7 @@
     "migrate": "npx ts-node --compiler-options '{\"module\":\"commonjs\"}' scripts/migrate-activities.ts",
     "migrate:prod": "NODE_ENV=production npx ts-node --compiler-options '{\"module\":\"commonjs\"}' scripts/migrate-activities.ts",
     "migrate:local": "MONGODB_URI=mongodb://localhost:27018/solo-leveling-local npx ts-node --compiler-options '{\"module\":\"commonjs\"}' scripts/migrate-activities.ts",
-    "db:migrate": "migrate-mongo up",
+    "db:migrate:prod": "MONGODB_URI=mongodb://mongodb:27017/solo-leveling migrate-mongo up",
     "db:migrate:down": "migrate-mongo down",
     "db:migrate:status": "migrate-mongo status",
     "db:migrate:create": "migrate-mongo create",
@@ -29,10 +29,12 @@
     "docker:local:db": "docker compose -f docker-compose.local.yml up -d mongodb-local"
   },
   "dependencies": {
+    "@sentry/browser": "^10.34.0",
     "bcryptjs": "^2.4.3",
     "date-fns": "^3.3.1",
     "jose": "^5.10.0",
     "migrate-mongo": "^14.0.7",
+    "minio": "^8.0.6",
     "mongoose": "^9.1.1",
     "next": "^15.1.0",
     "next-auth": "^5.0.0-beta.30",
@@ -44,7 +46,6 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "@types/mongoose": "^5.11.97",
     "@types/node": "^22.10.2",
     "@types/node-cron": "^3.0.11",
     "@types/react": "^18.3.17",
@@ -58,6 +59,7 @@
     "sharp": "^0.34.5",
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.6.3"
   }
 }

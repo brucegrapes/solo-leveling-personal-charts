@@ -183,7 +183,7 @@ export async function compressMedia(
  * Validate file before compression
  */
 export function validateFile(file: File): { valid: boolean; error?: string } {
-  const MAX_SIZE = 20 * 1024 * 1024; // 20MB
+  const MAX_SIZE = 10 * 1024 * 1024; // 20MB
   const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
   const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
   const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES];
@@ -198,7 +198,7 @@ export function validateFile(file: File): { valid: boolean; error?: string } {
   if (file.size > MAX_SIZE) {
     return {
       valid: false,
-      error: 'File size exceeds 20MB limit.',
+      error: 'File size exceeds 10MB limit.',
     };
   }
   

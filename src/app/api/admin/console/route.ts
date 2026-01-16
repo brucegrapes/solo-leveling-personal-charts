@@ -3,6 +3,7 @@ import { requireSystemDesigner } from '@/lib/auth-helpers';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import Player from '@/models/Player';
+import Post from '@/models/Post';
 import Settings from '@/models/Settings';
 import Subscription from '@/models/Subscription';
 import { ADMIN_CONFIG } from '@/config/admin';
@@ -97,6 +98,7 @@ export async function POST(request: NextRequest) {
       Settings,
       Subscription,
       sendPushNotification,
+      Post,
       console: {
         log: (...args: any[]) => args,
         error: (...args: any[]) => args,
@@ -113,6 +115,7 @@ export async function POST(request: NextRequest) {
         'Player',
         'Settings',
         'Subscription',
+        'Post',
         'sendPushNotification',
         'console',
         code
@@ -123,6 +126,7 @@ export async function POST(request: NextRequest) {
         context.Player,
         context.Settings,
         context.Subscription,
+        context.Post,
         context.sendPushNotification,
         context.console
       );

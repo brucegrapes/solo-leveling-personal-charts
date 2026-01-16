@@ -108,7 +108,7 @@ run_migrations() {
     fi
     
     # Run migrations
-    if npm run db:migrate 2>&1 | tee /tmp/migration.log; then
+    if npm run db:migrate:prod 2>&1 | tee /tmp/migration.log; then
         log_success "Migrations completed successfully"
     else
         if grep -q "No migrations to apply" /tmp/migration.log; then
@@ -256,7 +256,7 @@ verify_deployment() {
     log_info "Verifying deployment..."
     
     # Check if app responds
-    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -k https://localhost/ 2>/dev/null || echo "000")
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -k https://localhost:8443/ 2>/dev/null || echo "000")
     
     if [ "$HTTP_CODE" == "200" ] || [ "$HTTP_CODE" == "302" ]; then
         log_success "Application is responding (HTTP $HTTP_CODE)"
@@ -314,7 +314,7 @@ deploy_quick() {
     echo ""
     
     check_prerequisites
-    run_migrations
+    # run_migrations
     build_new_image
     deploy_rolling
     verify_deployment

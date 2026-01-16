@@ -20,11 +20,11 @@ export default function PostsPage() {
           </p>
         </div>
 
-        {/* Create post section */}
-        <CreatePost onPostCreated={handlePostCreated} />
-
         {/* Posts feed */}
         <PostsFeed />
+        
+        {/* Create post section */}
+        <CreatePost onPostCreated={handlePostCreated} />
       </div>
     </div>
   );
