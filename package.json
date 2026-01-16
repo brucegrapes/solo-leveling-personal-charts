@@ -29,7 +29,7 @@
     "docker:local:db": "docker compose -f docker-compose.local.yml up -d mongodb-local"
   },
   "dependencies": {
-    "@sentry/browser": "^10.34.0",
+    "@sentry/nextjs": "^10.34.0",
     "bcryptjs": "^2.4.3",
     "date-fns": "^3.3.1",
     "jose": "^5.10.0",

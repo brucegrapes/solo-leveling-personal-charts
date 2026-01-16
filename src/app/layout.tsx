@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { SessionProvider } from "next-auth/react";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { InstallPrompt } from "@/components/InstallPrompt";
-import { SentryInit } from "@/components/SentryInit";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -50,7 +49,6 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="antialiased">
-        <SentryInit />
         <SessionProvider>
           {children}
           <ServiceWorkerRegistration />
